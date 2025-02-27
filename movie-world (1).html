@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie World - Discover Great Films</title>
+    <style>
+        :root {
+            --primary: #2D3250;
+            --secondary: #424769;
+            --accent: #F6B17A;
+            --text: #F2F1EB;
+            --dark: #1a1a2e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--dark);
+            color: var(--text);
+        }
+        
+        header {
+            background-color: var(--primary);
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .site-title {
+            font-size: 2.5rem;
+            color: var(--accent);
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .site-description {
+            text-align: center;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+            justify-content: center;
+        }
+        
+        .filter-btn {
+            background-color: var(--secondary);
+            color: var(--text);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background-color: var(--accent);
+            color: var(--dark);
+        }
+        
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .movie-card {
+            background-color: var(--secondary);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .movie-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .movie-poster {
+            width: 100%;
+            height: 380px;
+            object-fit: cover;
+        }
+        
+        .movie-info {
+            padding: 1rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .movie-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+        
+        .movie-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .movie-description {
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+            flex-grow: 1;
+        }
+        
+        .watch-platforms {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: auto;
+        }
+        
+        .platform {
+            background-color: var(--primary);
+            color: var(--text);
+            padding: 0.5rem 0.8rem;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+        
+        .platform:hover {
+            background-color: var(--accent);
+            color: var(--dark);
+            transform: translateY(-2px);
+        }
+        
+        .rating {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--accent);
+            color: var(--dark);
+            padding: 0.3rem 0.6rem;
+            border-radius: 5px;
+            font-weight: bold;
+            z-index: 2;
+        }
+        
+        footer {
+            background-color: var(--primary);
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+        
+        .no-results {
+            text-align: center;
+            grid-column: 1 / -1;
+            padding: 3rem;
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+        
+        /* Animation for showing/hiding cards */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .movie-card {
+            animation: fadeIn 0.4s ease-out;
+        }
+        
+        .movie-backdrop {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .movie-backdrop::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: linear-gradient(transparent, var(--secondary));
+        }
+        
+        @media (max-width: 768px) {
+            .movies-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .movies-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 class="site-title">🎬 Movie World</h1>
+            <p class="site-description">Discover amazing films and where to watch them</p>
+        </div>
+    </header>
+    
+    <main class="container">
+        <div class="filters">
+            <button class="filter-btn active" data-category="all">All</button>
+            <button class="filter-btn" data-category="action">Action</button>
+            <button class="filter-btn" data-category="drama">Drama</button>
+            <button class="filter-btn" data-category="comedy">Comedy</button>
+            <button class="filter-btn" data-category="sci-fi">Sci-Fi</button>
+            <button class="filter-btn" data-category="crime">Crime</button>
+            <button class="filter-btn" data-category="thriller">Thriller</button>
+            <button class="filter-btn" data-category="horror">Horror</button>
+        </div>
+        
+        <div class="movies-grid" id="moviesGrid">
+            <!-- Movie cards will be inserted here by JavaScript -->
+        </div>
+    </main>
+    
+    <footer>
+        <p>Movie World &copy; 2025 | Your ultimate movie recommendation platform</p>
+    </footer>
+    
+    <script>
+        // Movie data with categories, platforms with URLs, and custom images
+        const moviesData = [
+            {
+                title: "The Shawshank Redemption",
+                year: 1994,
+                categories: ["drama"],
+                rating: 9.2,
+                description: "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
+                imageUrl: "https://i.postimg.cc/Qtb93mqJ/image-2025-02-27-180418418.png",
+                platforms: [
+                    { name: "Netflix", url: "https://www.netflix.com" },
+                    { name: "HBO Max", url: "https://www.hbomax.com" },
+                    { name: "Prime", url: "https://www.amazon.com/Prime-Video" }
+                ]
+            },
+            {
+                title: "The Dark Knight",
+                year: 2008,
+                categories: ["action", "thriller"],
+                rating: 8.9,
+                description: "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest tests of his ability to fight injustice.",
+                imageUrl: "https://i.postimg.cc/SQdCFSTb/image-2025-02-27-180313507.png",
+                platforms: [
+                    { name: "Netflix", url: "https://www.netflix.com" },
+                    { name: "HBO Max", url: "https://www.hbomax.com" }
+                ]
+            },
+            {
+                title: "Pulp Fiction",
+                year: 1994,
+                categories: ["crime", "drama"],
+                rating: 8.7,
+                description: "The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.",
+                imageUrl: "https://i.postimg.cc/L8qz3k6y/image-2025-02-27-172504142.png",
+                platforms: [
+                    { name: "Prime", url: "https://www.amazon.com/Prime-Video" },
+                    { name: "Hulu", url: "https://www.hulu.com" }
+                ]
+            },
+            {
+                title: "Inception",
+                year: 2010,
+                categories: ["sci-fi", "action"],
+                rating: 8.8,
+                description: "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.",
+                imageUrl: "https://i.postimg.cc/QtpgWcJF/image-2025-02-27-180207020.png",
+                platforms: [
+                    { name: "Netflix", url: "https://www.netflix.com" },
+                    { name: "Prime", url: "https://www.amazon.com/Prime-Video" }
+                ]
+            },
+            {
+                title: "The Godfather",
+                year: 1972,
+                categories: ["crime", "drama"],
+                rating: 9.0,
+                description: "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.",
+                imageUrl: "https://i.postimg.cc/XY72S1cQ/image-2025-02-27-180047897.png",
+                platforms: [
+                    { name: "Netflix", url: "https://www.netflix.com" },
+                    { name: "Prime", url: "https://www.amazon.com/Prime-Video" },
+                    { name: "HBO Max", url: "https://www.hbomax.com" }
+                ]
+            },
+            {
+                title: "Parasite",
+                year: 2019,
+                categories: ["thriller", "drama"],
+                rating: 8.5,
+                description: "Greed and class discrimination threaten the newly formed symbiotic relationship between the wealthy Park family and the destitute Kim clan.",
+                imageUrl: "https://i.postimg.cc/FHDBYXsM/image-2025-02-27-175959443.png",
+                platforms: [
+                    { name: "Hulu", url: "https://www.hulu.com" },
+                    { name: "Prime", url: "https://www.amazon.com/Prime-Video" }
+                ]
+            },
+            {
+                title: "Interstellar",
+                year: 2014,
+                categories: ["sci-fi", "drama"],
+                rating: 8.6,
+                description: "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
+                imageUrl: "https://i.postimg.cc/VLyQwwd4/image-2025-02-27-175829421.png",
+                platforms: [
+                    { name: "Prime", url: "https://www.amazon.com/Prime-Video" },
+                    { name: "HBO Max", url: "https://www.hbomax.com" }
+                ]
+            },
+            {
+                title: "Everything Everywhere All at Once",
+                year: 2022,
+                categories: ["sci-fi", "comedy", "action"],
+                rating: 8.2,
+                description: "An aging Chinese immigrant is swept up in an insane adventure, where she alone can save existence by exploring other universes.",
+                imageUrl: "https://i.postimg.cc/52VVBJJj/image-2025-02-27-175722906.png",
+                platforms: [
+                    { name: "Prime", url: "https://www.amazon.com/Prime-Video" },
+                    { name: "Showtime", url: "https://www.showtime.com" }
+                ]
+            },
+            {
+                title: "The Grand Budapest Hotel",
+                year: 2014,
+                categories: ["comedy", "drama"],
+                rating: 8.1,
+                description: "A writer encounters the owner of an aging high-class hotel, who tells him of his early years serving as a lobby boy in the hotel's glorious years under an exceptional concierge.",
+                imageUrl: "https://i.postimg.cc/MTrPd7jd/image-2025-02-27-175617933.png",
+                platforms: [
+                    { name: "Hulu", url: "https://www.hulu.com" },
+                    { name: "Disney+", url: "https://www.disneyplus.com" }
+                ]
+            },
+            {
+                title: "Mad Max: Fury Road",
+                year: 2015,
+                categories: ["action", "sci-fi"],
+                rating: 8.3,
+                description: "In a post-apocalyptic wasteland, a woman rebels against a tyrannical ruler in search for her homeland with the aid of a group of female prisoners, a psychotic worshiper, and a drifter named Max.",
+                imageUrl: "https://i.postimg.cc/cLqzpBkz/image-2025-02-27-175507733.png",
+                platforms: [
+                    { name: "HBO Max", url: "https://www.hbomax.com" },
+                    { name: "Prime", url: "https://www.amazon.com/Prime-Video" }
+                ]
+            },
+            {
+                title: "Get Out",
+                year: 2017,
+                categories: ["thriller", "horror"],
+                rating: 7.9,
+                description: "A young African-American visits his white girlfriend's parents for the weekend, where his simmering uneasiness about their reception of him eventually reaches a boiling point.",
+                imageUrl: "https://i.postimg.cc/bwDzTgDF/image-2025-02-27-175208630.png",
+                platforms: [
+                    { name: "Prime", url: "https://www.amazon.com/Prime-Video" },
+                    { name: "Netflix", url: "https://www.netflix.com" }
+                ]
+            },
+            {
+                title: "The Wolf of Wall Street",
+                year: 2013,
+                categories: ["crime", "comedy", "drama"],
+                rating: 8.2,
+                description: "Based on the true story of Jordan Belfort, from his rise to a wealthy stock-broker living the high life to his fall involving crime, corruption and the federal government.",
+                imageUrl: "https://i.postimg.cc/yYnJ5LN1/image-2025-02-27-174954182.png",
+                platforms: [
+                    { name: "Netflix", url: "https://www.netflix.com" },
+                    { name: "Prime", url: "https://www.amazon.com/Prime-Video" }
+                ]
+            }
+        ];
+
+        // Function to create movie card HTML
+        function createMovieCard(movie) {
+            const categoryString = movie.categories.map(cat => cat.charAt(0).toUpperCase() + cat.slice(1)).join('/');
+            
+            const platformsHTML = movie.platforms.map(platform => 
+                `<a href="${platform.url}" class="platform" target="_blank">${platform.name}</a>`
+            ).join('');
+            
+            return `
+                <div class="movie-card" data-categories="${movie.categories.join(' ')}">
+                    <div class="rating">${movie.rating}</div>
+                    <div class="movie-backdrop">
+                        <img src="${movie.imageUrl}" alt="${movie.title}" class="movie-poster">
+                    </div>
+                    <div class="movie-info">
+                        <h3 class="movie-title">${movie.title}</h3>
+                        <div class="movie-details">
+                            <span>${movie.year}</span>
+                            <span>${categoryString}</span>
+                        </div>
+                        <p class="movie-description">${movie.description}</p>
+                        <div class="watch-platforms">
+                            ${platformsHTML}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Function to render all movies
+        function renderMovies(category = 'all') {
+            const moviesGrid = document.getElementById('moviesGrid');
+            moviesGrid.innerHTML = ''; // Clear current movies
+            
+            let filteredMovies = moviesData;
+            
+            // Filter movies if a specific category is selected
+            if (category !== 'all') {
+                filteredMovies = moviesData.filter(movie => 
+                    movie.categories.includes(category)
+                );
+            }
+            
+            // Display message if no movies match the filter
+            if (filteredMovies.length === 0) {
+                moviesGrid.innerHTML = `
+                    <div class="no-results">
+                        <h2>No movies found in this category</h2>
+                        <p>Try selecting a different category</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Create and add each movie card to the grid
+            filteredMovies.forEach(movie => {
+                const movieCard = createMovieCard(movie);
+                moviesGrid.innerHTML += movieCard;
+            });
+        }
+
+        // Set up filter button click events
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked button
+                button.classList.add('active');
+                
+                // Get the category from the button's data attribute
+                const category = button.getAttribute('data-category');
+                
+                // Filter movies by the selected category
+                renderMovies(category);
+            });
+        });
+        
+        // Initial render of all movies
+        renderMovies();
+    </script>
+</body>
+</html>
