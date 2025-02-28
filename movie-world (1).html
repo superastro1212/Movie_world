@@ -242,7 +242,7 @@
       }
     }
     
-    /* Modal styles */
+    /* Modal styles for movie details */
     .modal {
       display: none;
       position: fixed;
@@ -286,17 +286,177 @@
       height: 400px;
       border: none;
     }
+    
+    /* ===== Chart Section Styles ===== */
+    #chartSection {
+      background-color: var(--dark);
+      padding: 2rem;
+      margin-top: 2rem;
+      border-radius: 10px;
+    }
+    
+    #chartSection h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: var(--accent);
+    }
+    
+    #chartSection .chart-description {
+      text-align: center;
+      margin-bottom: 30px;
+      color: var(--text);
+    }
+    
+    #chartSection .chart-search-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    
+    #chartSection .chart-search-input {
+      padding: 8px 15px;
+      width: 300px;
+      border: 1px solid var(--primary);
+      background-color: var(--secondary);
+      color: var(--text);
+      border-radius: 4px;
+    }
+    
+    #chartSection .chart-controls {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+      gap: 15px;
+    }
+    
+    #chartSection .chart-controls button {
+      background-color: var(--accent);
+      color: var(--dark);
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    #chartSection .chart-controls button:hover {
+      background-color: #f8c8a0;
+    }
+    
+    #chartSection .chart-container {
+      position: relative;
+      overflow-y: auto;
+      max-height: 600px;
+      margin-bottom: 20px;
+      padding: 10px;
+      background-color: var(--secondary);
+      border-radius: 5px;
+    }
+    
+    #chartSection .bar-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      height: 30px;
+    }
+    
+    #chartSection .chart-movie-title {
+      width: 200px;
+      text-align: right;
+      padding-right: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text);
+    }
+    
+    #chartSection .bar {
+      height: 25px;
+      background: linear-gradient(90deg, var(--accent) 0%, rgba(246,177,122,0.8) 100%);
+      border-radius: 3px;
+      position: relative;
+      transition: width 1s ease-in-out, background 0.3s;
+    }
+    
+    #chartSection .bar:hover {
+      background: linear-gradient(90deg, #f8c8a0 0%, #f8c8a0 100%);
+      cursor: pointer;
+    }
+    
+    #chartSection .bar-value {
+      position: absolute;
+      right: -45px;
+      top: 3px;
+      color: var(--text);
+    }
+    
+    #chartSection .chart-footer {
+      text-align: center;
+      margin-top: 20px;
+      color: var(--text);
+      font-size: 0.8em;
+    }
+    
+    @keyframes barAnimation {
+      from {
+        width: 0;
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    
+    #chartSection .animated-bar {
+      animation: barAnimation 1.5s ease-out forwards;
+    }
   </style>
 </head>
 <body>
-  <header>
-    <div class="container">
-      <h1 class="site-title">🎬 Movie World</h1>
-      <p class="site-description">Discover amazing films and where to watch them</p>
-    </div>
-  </header>
+<header class="fade-header">
+  <div class="container" style="text-align: center;">
+    <img
+      src="https://i.postimg.cc/Nfd6wdPf/1000-x-200.png" 
+      alt="Movie World - Discovering Amazing Films and Where to Watch Them"
+      style="max-width: 100%; height: auto;"
+    />
+  </div>
+</header>
+
+
+
+
+<script>
+  // Wait until the DOM is fully loaded
+  document.addEventListener('DOMContentLoaded', () => {
+    const header = document.querySelector('.fade-header');
+    const headerHeight = header.offsetHeight; 
+    // or set a fixed fade distance, e.g. const fadeDistance = 200;
+
+    window.addEventListener('scroll', () => {
+      // How far have we scrolled?
+      const scrollTop = window.scrollY;
+
+      // Fade out over the header's height (or your chosen fade distance)
+      // Example: fully visible at scrollTop = 0, fully invisible at scrollTop = headerHeight
+      let opacity = 1 - (scrollTop / 200);
+
+      // Ensure opacity never goes below 0
+      if (opacity < 0) {
+        opacity = 0;
+      }
+
+      // Apply the calculated opacity
+      header.style.opacity = opacity;
+    });
+  });
+</script>
+
+
+
   
   <main class="container">
+    <!-- Movies Grid Section -->
     <div class="filters">
       <button class="filter-btn active" data-category="all">All</button>
       <button class="filter-btn" data-category="action">Action</button>
@@ -315,13 +475,35 @@
     <div class="movies-grid" id="moviesGrid">
       <!-- Movie cards will be inserted here by JavaScript -->
     </div>
+    
+    <!-- Chart Section -->
+    <section id="chartSection">
+      <h2>IMDb – Top 10 Movies</h2>
+      <p class="chart-description">
+        According to IMDb user ratings, here are the top movies (expanded to a Top 50 list):
+      </p>
+      
+      <div class="chart-search-container">
+        <input type="text" class="chart-search-input" placeholder="Search for a movie..." id="chartSearchInput">
+      </div>
+      
+      <div class="chart-controls">
+        <button id="sortByViews">Sort by Rating</button>
+        <button id="sortByName">Sort Alphabetically</button>
+        <button id="animateChart">Animate Chart</button>
+      </div>
+      
+      <div class="chart-container" id="chartContainer"></div>
+      
+      <p class="chart-footer">Data source: IMDb</p>
+    </section>
   </main>
   
   <footer>
     <p>Movie World &copy; 2025 | Your ultimate movie recommendation platform by Conor Brown</p>
   </footer>
   
-  <!-- Modal for movie details -->
+  <!-- Modal for Movie Details -->
   <div id="movieModal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
@@ -333,6 +515,7 @@
     </div>
   </div>
   
+  <!-- Movies Section Script -->
   <script>
     // Global variable to keep track of the active category and currently displayed movies
     let currentCategory = 'all';
@@ -410,7 +593,7 @@
         imageUrl: "https://i.postimg.cc/XY72S1cQ/image-2025-02-27-180047897.png",
         director: "Francis Ford Coppola",
         ageRating: "R",
-        trailer: "https://www.youtube.com/embed/UaVTIH8mujA",
+        trailer: "https://www.youtube.com/embed/sY1S34973zA",
         platforms: [
           { name: "Netflix", url: "https://www.netflix.com" },
           { name: "Prime", url: "https://www.amazon.com/Prime-Video" },
@@ -501,7 +684,7 @@
         imageUrl: "https://i.postimg.cc/bwDzTgDF/image-2025-02-27-175208630.png",
         director: "Jordan Peele",
         ageRating: "R",
-        trailer: "https://www.youtube.com/embed/koQKnuQb7zQ",
+        trailer: "https://www.youtube.com/embed/HLoyvMDNy7o",
         platforms: [
           { name: "Prime", url: "https://www.amazon.com/Prime-Video" },
           { name: "Netflix", url: "https://www.netflix.com" }
@@ -591,7 +774,7 @@
         imageUrl: "https://i.postimg.cc/bvPrYvRR/image-2025-02-27-205645117.png",
         director: "Ridley Scott",
         ageRating: "R",
-        trailer: "https://www.youtube.com/embed/P5ieIbInFpg",
+        trailer: "https://www.youtube.com/embed/owK1qxDselE",
         platforms: [
           { name: "HBO Max", url: "https://www.hbomax.com" },
           { name: "Netflix", url: "https://www.netflix.com" }
@@ -636,7 +819,7 @@
         imageUrl: "https://i.postimg.cc/L6hZGhyY/image-2025-02-27-205244412.png",
         director: "Martin Scorsese",
         ageRating: "R",
-        trailer: "https://www.youtube.com/embed/r-MiSNsCdQ4",
+        trailer: "https://www.youtube.com/embed/alFzfM9tft4",
         platforms: [
           { name: "Prime", url: "https://www.amazon.com/Prime-Video" },
           { name: "Netflix", url: "https://www.netflix.com" }
@@ -801,6 +984,138 @@
     
     // Initial render of movies.
     renderMovies();
+  </script>
+  
+  <!-- Chart Section Script -->
+  <script>
+    // IMDb Top 50 Movies (ratings stored in "views")
+    const chartMoviesData = [
+      { title: "The Shawshank Redemption", views: 9.3 },
+      { title: "The Godfather", views: 9.2 },
+      { title: "The Dark Knight", views: 9.0 },
+      { title: "The Godfather Part II", views: 9.0 },
+      { title: "12 Angry Men", views: 9.0 },
+      { title: "Schindler's List", views: 8.9 },
+      { title: "The Lord of the Rings: The Return of the King", views: 8.9 },
+      { title: "Pulp Fiction", views: 8.9 },
+      { title: "The Lord of the Rings: The Fellowship of the Ring", views: 8.8 },
+      { title: "The Good, the Bad and the Ugly", views: 8.8 },
+      { title: "Fight Club", views: 8.8 },
+      { title: "Forrest Gump", views: 8.8 },
+      { title: "Inception", views: 8.8 },
+      { title: "The Matrix", views: 8.7 },
+      { title: "Goodfellas", views: 8.7 },
+      { title: "Se7en", views: 8.6 },
+      { title: "City of God", views: 8.6 },
+      { title: "The Silence of the Lambs", views: 8.6 },
+      { title: "It's a Wonderful Life", views: 8.6 },
+      { title: "Life Is Beautiful", views: 8.6 },
+      { title: "Spirited Away", views: 8.6 },
+      { title: "Saving Private Ryan", views: 8.6 },
+      { title: "The Green Mile", views: 8.6 },
+      { title: "Interstellar", views: 8.6 },
+      { title: "Léon: The Professional", views: 8.5 },
+      { title: "The Usual Suspects", views: 8.5 },
+      { title: "The Pianist", views: 8.5 },
+      { title: "The Departed", views: 8.5 },
+      { title: "Terminator 2: Judgment Day", views: 8.5 },
+      { title: "Back to the Future", views: 8.5 },
+      { title: "Gladiator", views: 8.5 },
+      { title: "Memento", views: 8.4 },
+      { title: "Apocalypse Now", views: 8.4 },
+      { title: "Alien", views: 8.4 },
+      { title: "The Shining", views: 8.4 },
+      { title: "The Prestige", views: 8.5 },
+      { title: "Once Upon a Time in America", views: 8.4 },
+      { title: "Casablanca", views: 8.5 },
+      { title: "Rear Window", views: 8.4 },
+      { title: "The Lives of Others", views: 8.4 },
+      { title: "American Beauty", views: 8.3 },
+      { title: "Oldboy", views: 8.4 },
+      { title: "Cinema Paradiso", views: 8.5 },
+      { title: "Dr. Strangelove", views: 8.4 },
+      { title: "Aliens", views: 8.3 },
+      { title: "The Great Dictator", views: 8.4 },
+      { title: "Your Name", views: 8.4 },
+      { title: "Grave of the Fireflies", views: 8.5 },
+      { title: "The Hunt", views: 8.3 },
+      { title: "Pan's Labyrinth", views: 8.2 }
+    ];
+    
+    let chartCurrentSort = "views";
+    const chartMaxViews = Math.max(...chartMoviesData.map(movie => movie.views));
+    const chartBarScale = 600 / chartMaxViews; // max bar width = 600px
+    
+    function renderChart(animate = false) {
+      const chartContainer = document.getElementById('chartContainer');
+      chartContainer.innerHTML = '';
+      
+      const searchText = document.getElementById('chartSearchInput').value.toLowerCase();
+      
+      let dataToRender = [...chartMoviesData];
+      
+      // Filter by search text
+      if (searchText) {
+        dataToRender = dataToRender.filter(movie => 
+          movie.title.toLowerCase().includes(searchText)
+        );
+      }
+      
+      // Sort data
+      if (chartCurrentSort === "views") {
+        dataToRender.sort((a, b) => b.views - a.views);
+      } else {
+        dataToRender.sort((a, b) => a.title.localeCompare(b.title));
+      }
+      
+      // Render bars
+      dataToRender.forEach(movie => {
+        const barContainer = document.createElement('div');
+        barContainer.className = 'bar-container';
+        
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'chart-movie-title';
+        titleDiv.title = movie.title;
+        titleDiv.textContent = movie.title;
+        
+        const barDiv = document.createElement('div');
+        barDiv.className = 'bar';
+        if (animate) {
+          barDiv.classList.add('animated-bar');
+        }
+        barDiv.style.width = `${movie.views * chartBarScale}px`;
+        
+        const valueDiv = document.createElement('div');
+        valueDiv.className = 'bar-value';
+        valueDiv.textContent = movie.views.toFixed(1);
+        
+        barDiv.appendChild(valueDiv);
+        barContainer.appendChild(titleDiv);
+        barContainer.appendChild(barDiv);
+        chartContainer.appendChild(barContainer);
+      });
+    }
+    
+    document.getElementById('sortByViews').addEventListener('click', () => {
+      chartCurrentSort = "views";
+      renderChart();
+    });
+    
+    document.getElementById('sortByName').addEventListener('click', () => {
+      chartCurrentSort = "name";
+      renderChart();
+    });
+    
+    document.getElementById('animateChart').addEventListener('click', () => {
+      renderChart(true);
+    });
+    
+    document.getElementById('chartSearchInput').addEventListener('input', () => {
+      renderChart();
+    });
+    
+    // Initial render with animation
+    renderChart(true);
   </script>
 </body>
 </html>
